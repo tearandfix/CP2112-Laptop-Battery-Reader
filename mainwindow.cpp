@@ -32,6 +32,8 @@ void MainWindow::slotTimerAlarm()
     INT                 DevNumbers;
     INT                 DevNumber;
 
+    ui->data_wear_level->clear();
+
     DevNumbers = CP2112_Find();
     if (DevNumbers==0)
     {
@@ -255,6 +257,9 @@ void MainWindow::slotTimerAlarm()
             0x3f    // CELL1_VOLTAGE
         };
 
+        INT fullChargeCapacity = -1;
+        INT designCapacity = -1;
+
         for (int i = 0; i<NUMBER_OF_SBS_ADDRESSES; i++)
         {
             QString str="";
@@ -440,6 +445,8 @@ void MainWindow::slotTimerAlarm()
                 {
                     if (ReadWord(m_hidSmbus, &data_word, Addresses[i]))
                     {
+                        if (addr == 0x10) fullChargeCapacity = data_word;
+                        if (addr == 0x18) designCapacity = data_word;
                         str = QString::number(data_word);
                         SmartBatteryInterface[i]->setText(str);
                     }
@@ -451,8 +458,13 @@ void MainWindow::slotTimerAlarm()
 
 
 
+        if (fullChargeCapacity >= 0 && designCapacity > 0)
+        {
+            ui->data_wear_level->setText(QString::number(
+                qMax(0.0, 100.0 * (1.0 - double(fullChargeCapacity) / designCapacity)), 'f', 1));
+        }
+
         HidSmbus_Close(m_hidSmbus);
 //        HidSmbus_Reset(m_hidSmbus);
     }
 }
-
