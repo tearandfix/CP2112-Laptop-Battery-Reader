@@ -41,17 +41,15 @@ DISTFILES += \
     SLABHIDtoSMBus.dll \
     SLABHIDtoSMBus.lib
 
-unix:!macx: LIBS += -L$$PWD/./ -lslabhidtosmbus
-
-INCLUDEPATH += $$PWD/./
-DEPENDPATH += $$PWD/./
-
-unix:!macx: LIBS += -L$$PWD/./ -lslabhidtosmbus
-
-INCLUDEPATH += $$PWD/./
-DEPENDPATH += $$PWD/./
-
-QMAKE_LIBDIR += $$PWD/./
+unix:!macx {
+    # Use the static SDK library so no vendor .so installation is needed.
+    isEmpty(SILABS_LIBDIR): SILABS_LIBDIR = $$PWD/Library/Linux/lib
+    !exists($$SILABS_LIBDIR/libslabhidtosmbus.a): error("Place the Linux SDK libslabhidtosmbus.a in $$SILABS_LIBDIR or set SILABS_LIBDIR")
+    !exists($$SILABS_LIBDIR/libslabhiddevice.a): error("Place the Linux SDK libslabhiddevice.a in $$SILABS_LIBDIR or set SILABS_LIBDIR")
+    CONFIG += link_pkgconfig
+    PKGCONFIG += libusb-1.0
+    LIBS += $$SILABS_LIBDIR/libslabhidtosmbus.a $$SILABS_LIBDIR/libslabhiddevice.a -lpthread -lrt
+}
 
 RESOURCES += \
     myResources.qrc
