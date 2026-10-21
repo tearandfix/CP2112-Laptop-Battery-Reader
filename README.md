@@ -1,4 +1,37 @@
 # CP2112-Laptop-Battery-Reader
+
+## Building on Linux
+
+Requires a C++ compiler, make, Qt 5 Widgets development tools (including qmake),
+pkg-config, and libusb 1.0 development files. On Debian/Ubuntu:
+
+```sh
+sudo apt install build-essential qtbase5-dev qt5-qmake pkg-config libusb-1.0-0-dev
+```
+
+Obtain the Silicon Labs USBXpress Host SDK for Linux and copy both
+`libslabhidtosmbus.a` and `libslabhiddevice.a` from its
+`CP2112/lib/<architecture>/` directory into `Library/Linux/lib/`.
+Use libraries matching your target architecture. These files are ignored by git.
+Alternatively, pass `SILABS_LIBDIR=/path/to/sdk/CP2112/lib/x86_64` to qmake.
+
+The x86-64 build was verified using the SDK libraries mirrored at
+[mschuldt/_efm8](https://github.com/mschuldt/_efm8/tree/56d116793833e9be86355a63bc9675489f6c2e38/USBXpressHostSDK/CP2112)
+(commit `56d116793833e9be86355a63bc9675489f6c2e38`).
+
+```sh
+mkdir -p build-linux
+cd build-linux
+qmake ../CP2112-Laptop-Battery-Reader.pro
+make -j"$(nproc)"
+./CP2112-Laptop-Battery-Reader
+```
+
+The vendor libraries are linked statically; Qt and libusb are runtime dependencies.
+Access to the CP2112 USB device requires appropriate USB device permissions.
+
+## About
+
 This simple program shows all the parameters of your battery within the Smart Battery Data Specification Revision 1.1<br />
 And also some other parameters. Namely, viewing the voltage on each battery cell. Although they are undocumented in this specification, many manufacturers use them.<br />
 

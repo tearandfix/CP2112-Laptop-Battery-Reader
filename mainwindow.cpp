@@ -265,6 +265,21 @@ void MainWindow::slotTimerAlarm()
             switch (addr)
             {
 
+            case 0x04:  // AT_RATE
+            case 0x0a:  // CURRENT
+            case 0x0b:  // AVERAGE_CURRENT
+            {
+                    if (ReadWord(m_hidSmbus, &data_word, Addresses[i]))
+                    {
+                        // SBS signed words use 16-bit two's-complement encoding.
+                        if (data_word & 0x8000) data_word -= 0x10000;
+                        str = QString::number(data_word);
+                        SmartBatteryInterface[i]->setText(str);
+                    }
+                    else SmartBatteryInterface[i]->clear();
+            }
+                break;
+
             case 0x08:  // TEMPERATURE
             {
                     if (ReadWord(m_hidSmbus, &data_word, Addresses[i]))
@@ -440,5 +455,4 @@ void MainWindow::slotTimerAlarm()
 //        HidSmbus_Reset(m_hidSmbus);
     }
 }
-
 
